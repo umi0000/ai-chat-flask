@@ -51,7 +51,7 @@ def create_app():
         if not db_existed:
             admin = models.Users.query.filter_by(username="admin").first()
             if not admin:
-                init_admin = models.Users(username="admin",password_hash=generate_password_hash("admin123"),privilege="admin")
+                init_admin = models.Users(username="admin",password_hash=generate_password_hash("$%bdEtTZv&8%u2"),privilege="admin")
                 db.session.add(init_admin)
                 db.session.commit()
                 print("首次启动，添加了管理员用户admin，密码admin123，请及时修改密码！")

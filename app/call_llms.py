@@ -58,8 +58,6 @@ class Call:
         if not current_llm_config:
             return jsonify("当前模型不存在，请检查模型名称和供应商名称"),404
         if current_llm_config.get("type")=="openai":
-            print(current_llm_config.get("api_key"))
-            print(type(current_llm_config.get("api_key")))
             current_llm = ChatOpenAI(
                     api_key=current_llm_config.get("api_key"),
                     base_url=current_llm_config.get("base_url"),

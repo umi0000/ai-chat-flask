@@ -10,13 +10,16 @@ def login():
     data = request.get_json()
     username = data.get("username")
     password = data.get("password")
-    user = Users.query.filter_by(username=username).one_or_404()
-    if user.verify_password(password):
-        session["username"]=username
-        session["id"]=user.id
-        return jsonify({"success":True,"username":username})
+    user = Users.query.filter_by(username=username).one_or_none()
+    if user:
+        if user.verify_password(password):
+            session["username"]=username
+            session["id"]=user.id
+            return jsonify({"success":True,"username":username})
+        else:
+            return jsonify("用户名或密码错误"),403
     else:
-        return jsonify("密码错误"),403
+        return jsonify("用户名或密码错误"),403
 
 # @bp.route("/register",methods=["POST"])
 # def register():

@@ -7,6 +7,9 @@ const state = {
   renameConversationId: null,
   isSending: false,
   shouldAutoScroll: true,
+  userScrollLocked: false,
+  touchStartY: null,
+  currentAbortController: null,
 };
 
 const els = {
@@ -291,16 +294,35 @@ function showLoadingMessages() {
 
 function scrollToBottom() {
   els.chatMain.scrollTop = els.chatMain.scrollHeight;
+  state.userScrollLocked = false;
+  state.shouldAutoScroll = true;
 }
 
 function isNearBottom() {
   const distance = els.chatMain.scrollHeight - els.chatMain.scrollTop - els.chatMain.clientHeight;
-  return distance < 72;
+  return distance < 24;
 }
 
 function scrollToBottomIfNeeded() {
-  if (state.shouldAutoScroll) {
+  if (state.shouldAutoScroll && !state.userScrollLocked) {
     scrollToBottom();
+  }
+}
+
+function disableAutoScroll() {
+  state.userScrollLocked = true;
+  state.shouldAutoScroll = false;
+}
+
+function updateAutoScrollFromPosition() {
+  if (isNearBottom()) {
+    state.userScrollLocked = false;
+    state.shouldAutoScroll = true;
+    return;
+  }
+
+  if (!state.userScrollLocked) {
+    state.shouldAutoScroll = false;
   }
 }
 
@@ -311,8 +333,39 @@ function resizeInput() {
 
 function setSending(isSending) {
   state.isSending = isSending;
-  els.sendButton.disabled = isSending || !els.input.value.trim();
   els.input.disabled = isSending;
+  renderSendButton();
+}
+
+function renderSendButton() {
+  if (state.isSending) {
+    els.sendButton.disabled = false;
+    els.sendButton.classList.add("is-stopping");
+    els.sendButton.setAttribute("aria-label", "停止输出");
+    els.sendButton.setAttribute("title", "停止输出");
+    els.sendButton.innerHTML = `
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="8" y="8" width="8" height="8" rx="1.6"></rect>
+      </svg>
+    `;
+    return;
+  }
+
+  els.sendButton.classList.remove("is-stopping");
+  els.sendButton.disabled = !els.input.value.trim();
+  els.sendButton.setAttribute("aria-label", "发送消息");
+  els.sendButton.setAttribute("title", "发送");
+  els.sendButton.innerHTML = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7"></path>
+    </svg>
+  `;
+}
+
+function stopStreaming() {
+  if (state.currentAbortController) {
+    state.currentAbortController.abort();
+  }
 }
 
 function renderModelOptions() {
@@ -652,10 +705,14 @@ async function sendMessage() {
 
   const assistantMarkdown = appendAssistantMessage(model.model_name);
   let assistantText = "";
+  let wasStopped = false;
+  const controller = new AbortController();
+  state.currentAbortController = controller;
 
   try {
     const response = await apiFetch("/api/chat", {
       method: "POST",
+      signal: controller.signal,
       body: JSON.stringify({
         conversation_uuid: conversationId,
         message: text,
@@ -681,9 +738,22 @@ async function sendMessage() {
     renderConversations();
     updateActiveTitle();
   } catch (error) {
-    renderMarkdown(assistantMarkdown, `发送失败：${error.message}`);
-    showToast(error.message);
+    wasStopped = error.name === "AbortError";
+    if (wasStopped) {
+      if (assistantText) {
+        renderMarkdown(assistantMarkdown, `${assistantText}\n\n> 已停止输出`);
+      } else {
+        renderMarkdown(assistantMarkdown, "> 已停止输出");
+      }
+      showToast("已停止输出");
+    } else {
+      renderMarkdown(assistantMarkdown, `发送失败：${error.message}`);
+      showToast(error.message);
+    }
   } finally {
+    if (state.currentAbortController === controller) {
+      state.currentAbortController = null;
+    }
     setSending(false);
     els.input.focus();
   }
@@ -723,12 +793,16 @@ function bindEvents() {
 
   els.form.addEventListener("submit", (event) => {
     event.preventDefault();
+    if (state.isSending) {
+      stopStreaming();
+      return;
+    }
     sendMessage();
   });
 
   els.input.addEventListener("input", () => {
     resizeInput();
-    els.sendButton.disabled = state.isSending || !els.input.value.trim();
+    renderSendButton();
   });
 
   els.input.addEventListener("keydown", (event) => {
@@ -738,8 +812,34 @@ function bindEvents() {
     }
   });
 
-  els.chatMain.addEventListener("scroll", () => {
-    state.shouldAutoScroll = isNearBottom();
+  els.chatMain.addEventListener("wheel", (event) => {
+    if (state.isSending && event.deltaY < 0) {
+      disableAutoScroll();
+    }
+  }, { passive: true });
+
+  els.chatMain.addEventListener("touchstart", (event) => {
+    state.touchStartY = event.touches[0]?.clientY ?? null;
+  }, { passive: true });
+
+  els.chatMain.addEventListener("touchmove", (event) => {
+    const currentY = event.touches[0]?.clientY;
+    if (state.isSending && state.touchStartY !== null && currentY !== undefined && currentY > state.touchStartY) {
+      disableAutoScroll();
+    }
+  }, { passive: true });
+
+  els.chatMain.addEventListener("scroll", updateAutoScrollFromPosition);
+
+  els.chatMain.addEventListener("keydown", (event) => {
+    if (!state.isSending) {
+      return;
+    }
+
+    const upwardKeys = ["ArrowUp", "PageUp", "Home"];
+    if (upwardKeys.includes(event.key)) {
+      disableAutoScroll();
+    }
   });
 
   els.menu.addEventListener("click", (event) => {

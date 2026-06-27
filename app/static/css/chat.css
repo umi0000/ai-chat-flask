@@ -525,16 +525,58 @@ input:focus-visible {
   position: relative;
   overflow-x: auto;
   border-radius: 8px;
-  padding: 16px;
-  color: #232323;
+  padding: 0;
+  color: #24292f;
   background: #f3f3f2;
   font-size: 14px;
   line-height: 1.6;
 }
 
 .markdown pre code {
-  padding: 0;
+  display: block;
+  padding: 16px;
   background: transparent;
+}
+
+.markdown pre code.hljs {
+  background: #f3f3f2;
+}
+
+.markdown .hljs-keyword,
+.markdown .hljs-selector-tag,
+.markdown .hljs-built_in,
+.markdown .syntax-keyword {
+  color: #9a3412;
+  font-weight: 650;
+}
+
+.markdown .hljs-string,
+.markdown .hljs-title,
+.markdown .syntax-string {
+  color: #116329;
+}
+
+.markdown .hljs-number,
+.markdown .hljs-literal,
+.markdown .syntax-number {
+  color: #0550ae;
+}
+
+.markdown .hljs-comment,
+.markdown .syntax-comment {
+  color: #6e7781;
+  font-style: italic;
+}
+
+.markdown .hljs-attr,
+.markdown .hljs-variable,
+.markdown .hljs-params {
+  color: #953800;
+}
+
+.markdown .hljs-function,
+.markdown .hljs-title.function_ {
+  color: #8250df;
 }
 
 .markdown blockquote {

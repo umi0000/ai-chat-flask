@@ -130,6 +130,7 @@ function renderMarkdown(target, markdown) {
     ? marked.parse(markdown || "", { breaks: true, gfm: true })
     : fallbackMarkdown(markdown || "");
   target.innerHTML = typeof DOMPurify !== "undefined" ? DOMPurify.sanitize(raw) : raw;
+  highlightCodeBlocks(target);
 
   if (typeof renderMathInElement !== "undefined") {
     renderMathInElement(target, {
@@ -142,6 +143,43 @@ function renderMarkdown(target, markdown) {
       throwOnError: false,
     });
   }
+}
+
+function highlightCodeBlocks(root) {
+  root.querySelectorAll("pre code").forEach((block) => {
+    const language = getCodeLanguage(block);
+    const plainCode = block.textContent || "";
+    block.classList.add("hljs");
+
+    if (typeof hljs !== "undefined") {
+      const highlighted = language && hljs.getLanguage(language)
+        ? hljs.highlight(plainCode, { language, ignoreIllegals: true }).value
+        : hljs.highlightAuto(plainCode).value;
+      block.innerHTML = highlighted;
+      if (language) {
+        block.classList.add(`language-${language}`);
+      }
+      return;
+    }
+
+    block.innerHTML = fallbackHighlightCode(plainCode);
+  });
+}
+
+function getCodeLanguage(block) {
+  const className = Array.from(block.classList).find((name) => name.startsWith("language-"));
+  if (!className) {
+    return "";
+  }
+  return className.replace("language-", "").trim().toLowerCase();
+}
+
+function fallbackHighlightCode(code) {
+  return escapeHtml(code)
+    .replace(/\b(from|import|def|class|return|if|else|elif|for|while|try|except|with|as|in|and|or|not|const|let|var|function|async|await|new)\b/g, '<span class="syntax-keyword">$1</span>')
+    .replace(/("[^"]*"|'[^']*')/g, '<span class="syntax-string">$1</span>')
+    .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="syntax-number">$1</span>')
+    .replace(/(#.*$|\/\/.*$)/gm, '<span class="syntax-comment">$1</span>');
 }
 
 function fallbackMarkdown(markdown) {

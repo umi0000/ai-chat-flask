@@ -1,0 +1,16 @@
+[
+    {
+        "model_name":"gpt-5.5",
+        "base_url":"https://your-site.top",
+        "api_key":"sk-664468xxxxx",
+        "type":"openai",
+        "provider":"sub2api"
+    },
+    {
+        "model_name":"gpt-5.4mini",
+        "base_url":"https://your-site.top",
+        "api_key":"sk-6yyyyy",
+        "type":"openai",
+        "provider":"sub2api"
+    }
+]

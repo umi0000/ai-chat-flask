@@ -59,9 +59,9 @@ def useradd():
         for i in range(len(existing_usernames)):
             existing_usernames[i] = existing_usernames[i].username
         if username in existing_usernames:
-            return jsonify("用户名已存在"), 403
+            return jsonify("用户名已存在"), 400
         elif username == "" or password == "":
-            return jsonify("用户名或密码不能为空"),403
+            return jsonify("用户名或密码不能为空"),400
         isvalid,errors = check_password_strength(password)
         if isvalid:
             try:
@@ -70,9 +70,9 @@ def useradd():
                 db.session.commit()
                 return jsonify("success!")
             except StatementError:
-                return jsonify("请插入正确的用户privilege类型:admin or user"),403
+                return jsonify("请插入正确的用户privilege类型:admin or user"),400
         else:
-            return jsonify(errors)
+            return jsonify(errors),403
     else:
         return jsonify("Unauthorized"),401
     

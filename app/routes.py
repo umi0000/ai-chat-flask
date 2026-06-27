@@ -1,11 +1,13 @@
-from flask import Flask,request,jsonify,session,Blueprint
+from flask import request,jsonify,session,Blueprint
 from . import db
-from .models import Users,Messages,Conversations
+from .models import Messages,Conversations
 from sqlalchemy.exc import NoResultFound
 from langchain_core.messages import SystemMessage,HumanMessage,AIMessage
 import json
 from .call_llms import Call
 
+#大爱nagi酱
+#nagi -> wlp
 bp = Blueprint("routes",__name__,url_prefix="/api")
 
 def login_check():

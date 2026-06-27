@@ -67,7 +67,7 @@ class Call:
                     stream_usage=True,
                     use_responses_api=True
                 )
-
+#青山なぎさが大好きです
         def generator():
             full_resp_content = ""
             for chunk in current_llm.stream(messages_request):
@@ -103,6 +103,21 @@ class Call:
                     "X-Accel-Buffering": "no",
                 }
                 )
+  
+# 言いたいことがあるんだよ
 
-         
-        
+# やっぱり なぎちゃん 可愛いよ
+
+# 好き好き大好き やっぱ好き
+
+# やっと見つけたお姫様
+
+# 俺が生まれてきた理由
+
+# それはお前に出会うため
+
+# 俺と一緒に人生歩もう
+
+# 世界で一番愛してる
+
+# あ い し て る!

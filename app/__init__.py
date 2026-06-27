@@ -46,7 +46,6 @@ def create_app():
     from .pages import bp as pages_bp
     app.register_blueprint(pages_bp)
     from . import models
-    CORS(app, supports_credentials=True) 
 
     with app.app_context(): #此时flask不知道要运行哪个app，所以要手动with app.app_context()
         db.create_all() #在当前app的上下文中创建所有表
@@ -59,3 +58,4 @@ def create_app():
                 print("首次启动，添加了管理员用户admin，密码admin123，请及时修改密码！")
     return app
 
+#青山なぎさが大好きです

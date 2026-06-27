@@ -55,7 +55,7 @@ def create_app():
                 init_admin = models.Users(username="admin",password_hash=generate_password_hash("$%bdEtTZv&8%u2"),privilege="admin")
                 db.session.add(init_admin)
                 db.session.commit()
-                print("首次启动，添加了管理员用户admin，密码admin123，请及时修改密码！")
+                print("首次启动，添加了管理员用户admin，密码$%bdEtTZv&8%u2")
     return app
 
 #青山なぎさが大好きです

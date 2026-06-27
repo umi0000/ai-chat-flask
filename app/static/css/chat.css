@@ -603,6 +603,20 @@ input:focus-visible {
   background: var(--surface-soft);
 }
 
+.math-render {
+  max-width: 100%;
+}
+
+.math-render-block {
+  margin: 14px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.math-render-block > .katex-display {
+  margin: 0;
+}
+
 .math-fallback {
   border-radius: 6px;
   padding: 1px 5px;
@@ -611,7 +625,7 @@ input:focus-visible {
   font-style: italic;
 }
 
-.math-block {
+.math-render-block.math-fallback {
   display: block;
   margin: 12px 0;
   padding: 10px 12px;

@@ -126,23 +126,100 @@ function normalizeContent(content) {
 }
 
 function renderMarkdown(target, markdown) {
+  const math = extractMathBlocks(markdown || "");
   const raw = typeof marked !== "undefined"
-    ? marked.parse(markdown || "", { breaks: true, gfm: true })
-    : fallbackMarkdown(markdown || "");
+    ? marked.parse(math.text, { breaks: true, gfm: true })
+    : fallbackMarkdown(math.text);
   target.innerHTML = typeof DOMPurify !== "undefined" ? DOMPurify.sanitize(raw) : raw;
+  restoreMathBlocks(target, math.items);
   highlightCodeBlocks(target);
+}
 
-  if (typeof renderMathInElement !== "undefined") {
-    renderMathInElement(target, {
-      delimiters: [
-        { left: "$$", right: "$$", display: true },
-        { left: "\\[", right: "\\]", display: true },
-        { left: "$", right: "$", display: false },
-        { left: "\\(", right: "\\)", display: false },
-      ],
-      throwOnError: false,
+function extractMathBlocks(markdown) {
+  const items = [];
+  let text = String(markdown || "");
+
+  const patterns = [
+    { regex: /\\\[([\s\S]*?)\\\]/g, display: true },
+    { regex: /\$\$([\s\S]*?)\$\$/g, display: true },
+    { regex: /\\\(([\s\S]*?)\\\)/g, display: false },
+    { regex: /(^|[^\\$])\$([^\n$]+?)\$/g, display: false, keepPrefix: true },
+  ];
+
+  patterns.forEach((pattern) => {
+    text = text.replace(pattern.regex, (...args) => {
+      const match = args[0];
+      const prefix = pattern.keepPrefix ? args[1] : "";
+      const formula = pattern.keepPrefix ? args[2] : args[1];
+      const token = `MATHPLACEHOLDER${items.length}END`;
+      items.push({ formula: formula.trim(), display: pattern.display });
+      return pattern.keepPrefix ? `${prefix}${token}` : token;
     });
+  });
+
+  return { text, items };
+}
+
+function restoreMathBlocks(root, items) {
+  if (!items.length) {
+    return;
   }
+
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  while (walker.nextNode()) {
+    textNodes.push(walker.currentNode);
+  }
+
+  textNodes.forEach((node) => {
+    const value = node.nodeValue;
+    if (!value || !value.includes("MATHPLACEHOLDER")) {
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    const parts = value.split(/(MATHPLACEHOLDER\d+END)/g);
+    parts.forEach((part) => {
+      const match = part.match(/^MATHPLACEHOLDER(\d+)END$/);
+      if (!match) {
+        fragment.append(document.createTextNode(part));
+        return;
+      }
+
+      const item = items[Number(match[1])];
+      if (!item) {
+        fragment.append(document.createTextNode(part));
+        return;
+      }
+      fragment.append(renderMathNode(item));
+    });
+
+    node.parentNode.replaceChild(fragment, node);
+  });
+}
+
+function renderMathNode(item) {
+  const wrapper = document.createElement(item.display ? "div" : "span");
+  wrapper.className = item.display ? "math-render math-render-block" : "math-render";
+
+  if (typeof katex === "undefined") {
+    wrapper.textContent = item.formula;
+    wrapper.classList.add("math-fallback");
+    return wrapper;
+  }
+
+  try {
+    katex.render(item.formula, wrapper, {
+      displayMode: item.display,
+      throwOnError: false,
+      strict: "ignore",
+    });
+  } catch (error) {
+    wrapper.textContent = item.formula;
+    wrapper.classList.add("math-fallback");
+  }
+
+  return wrapper;
 }
 
 function highlightCodeBlocks(root) {
@@ -281,9 +358,7 @@ function fallbackMarkdown(markdown) {
 function formatInline(value) {
   return escapeHtml(value)
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/`([^`]+)`/g, "<code>$1</code>")
-    .replace(/\$\$(.+?)\$\$/g, '<span class="math-fallback math-block">$1</span>')
-    .replace(/\$(.+?)\$/g, '<span class="math-fallback">$1</span>');
+    .replace(/`([^`]+)`/g, "<code>$1</code>");
 }
 
 function escapeHtml(value) {

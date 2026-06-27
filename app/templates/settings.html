@@ -33,14 +33,25 @@
             <span class="current-label">当前用户</span>
             <strong id="current-username">加载中</strong>
           </div>
-          <button class="secondary-button" id="logout-button" type="button">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M10 17l5-5-5-5"></path>
-              <path d="M15 12H3"></path>
-              <path d="M21 19V5"></path>
-            </svg>
-            <span>登出</span>
-          </button>
+          <div class="account-actions">
+            {% if is_admin %}
+            <a class="secondary-button" href="/admin">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z"></path>
+                <path d="M9 12l2 2 4-4"></path>
+              </svg>
+              <span>管理员面板</span>
+            </a>
+            {% endif %}
+            <button class="secondary-button" id="logout-button" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M10 17l5-5-5-5"></path>
+                <path d="M15 12H3"></path>
+                <path d="M21 19V5"></path>
+              </svg>
+              <span>登出</span>
+            </button>
+          </div>
         </div>
 
         <div class="tabs" role="tablist" aria-label="账号设置选项">

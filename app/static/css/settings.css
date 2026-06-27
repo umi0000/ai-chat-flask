@@ -160,6 +160,12 @@ input:focus-visible {
   font-size: 15px;
 }
 
+.account-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -293,6 +299,8 @@ input:focus-visible {
   background: var(--surface-soft);
   font-size: 14px;
   font-weight: 680;
+  text-decoration: none;
+  white-space: nowrap;
   transition: background 160ms ease, opacity 160ms ease;
 }
 
@@ -325,6 +333,12 @@ input:focus-visible {
 
   .account-meta {
     min-width: calc(100% - 52px);
+  }
+
+  .account-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
   }
 
   .primary-button,

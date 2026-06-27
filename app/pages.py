@@ -44,7 +44,7 @@ def chat_page():
 def settings_page():
     if not is_logged_in():
         return redirect(url_for("pages.login_page"))
-    return render_template("settings.html")
+    return render_template("settings.html", is_admin=is_admin())
 
 
 @bp.route("/admin")

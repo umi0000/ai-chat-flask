@@ -75,6 +75,7 @@ button {
 .back-link:focus-visible,
 .tab:focus-visible,
 .primary-button:focus-visible,
+.secondary-button:focus-visible,
 input:focus-visible {
   outline: none;
   box-shadow: 0 0 0 4px var(--focus);
@@ -141,6 +142,7 @@ input:focus-visible {
 
 .account-meta {
   min-width: 0;
+  flex: 1;
   display: grid;
   gap: 2px;
 }
@@ -278,6 +280,31 @@ input:focus-visible {
   opacity: 0.7;
 }
 
+.secondary-button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 14px;
+  color: var(--text);
+  background: var(--surface-soft);
+  font-size: 14px;
+  font-weight: 680;
+  transition: background 160ms ease, opacity 160ms ease;
+}
+
+.secondary-button:hover {
+  background: var(--surface-hover);
+}
+
+.secondary-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
 @media (max-width: 560px) {
   .settings-page {
     padding: 24px 14px;
@@ -291,7 +318,17 @@ input:focus-visible {
     grid-template-columns: 1fr;
   }
 
-  .primary-button {
+  .account-line {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .account-meta {
+    min-width: calc(100% - 52px);
+  }
+
+  .primary-button,
+  .secondary-button {
     width: 100%;
   }
 }

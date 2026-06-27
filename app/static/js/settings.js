@@ -14,6 +14,7 @@ const els = {
   newPassword: document.querySelector("#new-password"),
   usernameSubmit: document.querySelector("#username-submit"),
   passwordSubmit: document.querySelector("#password-submit"),
+  logoutButton: document.querySelector("#logout-button"),
 };
 
 function apiFetch(url, options = {}) {
@@ -59,6 +60,11 @@ function initials(name) {
 function setLoading(button, isLoading) {
   button.disabled = isLoading;
   button.textContent = isLoading ? "提交中..." : "提交";
+}
+
+function setLogoutLoading(isLoading) {
+  els.logoutButton.disabled = isLoading;
+  els.logoutButton.querySelector("span").textContent = isLoading ? "登出中..." : "登出";
 }
 
 function redirectToLoginSoon() {
@@ -168,6 +174,30 @@ async function submitPassword(event) {
   }
 }
 
+async function handleLogout() {
+  clearStatus();
+  setLogoutLoading(true);
+
+  try {
+    const response = await apiFetch("/api/auth/logout", { method: "POST" });
+    if (response.status === 401) {
+      window.location.href = "/login";
+      return;
+    }
+
+    if (!response.ok) {
+      showStatus(await readMessage(response, "登出失败"));
+      setLogoutLoading(false);
+      return;
+    }
+
+    window.location.href = "/login";
+  } catch (error) {
+    showStatus("无法连接后端服务");
+    setLogoutLoading(false);
+  }
+}
+
 function bindEvents() {
   els.tabs.forEach((tab) => {
     tab.addEventListener("click", () => switchTab(tab.dataset.tab));
@@ -175,6 +205,7 @@ function bindEvents() {
 
   els.usernameForm.addEventListener("submit", submitUsername);
   els.passwordForm.addEventListener("submit", submitPassword);
+  els.logoutButton.addEventListener("click", handleLogout);
 }
 
 bindEvents();

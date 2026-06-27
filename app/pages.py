@@ -1,11 +1,22 @@
 from flask import Blueprint, redirect, render_template, session, url_for
 
+from .models import Users
+
 
 bp = Blueprint("pages", __name__)
 
 
 def is_logged_in():
     return bool(session.get("username") and session.get("id"))
+
+
+def is_admin():
+    user_id = session.get("id")
+    if not user_id:
+        return False
+
+    user = Users.query.filter_by(id=user_id).one_or_none()
+    return bool(user and user.privilege == "admin")
 
 
 @bp.route("/")
@@ -33,4 +44,11 @@ def chat_page():
 def settings_page():
     if not is_logged_in():
         return redirect(url_for("pages.login_page"))
-    return "设置页面待开发"
+    return render_template("settings.html")
+
+
+@bp.route("/admin")
+def admin_page():
+    if not is_logged_in() or not is_admin():
+        return redirect(url_for("pages.login_page"))
+    return render_template("admin.html")

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>登录 - AI Chat</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+  <script src="{{ url_for('static', filename='js/login.js') }}" defer></script>
+</head>
+<body>
+  <main class="login-page">
+    <section class="login-panel" aria-labelledby="login-title">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" role="img">
+          <path d="M7.6 7.1h8.8c1.88 0 3.4 1.52 3.4 3.4v2.1c0 1.88-1.52 3.4-3.4 3.4h-4.18l-3.72 3.1v-3.1h-.9c-1.88 0-3.4-1.52-3.4-3.4v-2.1c0-1.88 1.52-3.4 3.4-3.4Z"/>
+          <path d="M8.2 10.4h7.6M8.2 13.1h4.9"/>
+        </svg>
+      </div>
+
+      <header class="login-header">
+        <h1 id="login-title">登录 AI Chat</h1>
+        <p>使用管理员分配的账号继续对话。</p>
+      </header>
+
+      <form class="login-form" id="login-form" autocomplete="on">
+        <div class="form-field">
+          <label for="username">用户名</label>
+          <input id="username" name="username" type="text" autocomplete="username" required autofocus>
+        </div>
+
+        <div class="form-field">
+          <label for="password">密码</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+
+        <div class="form-error" id="login-error" role="alert" aria-live="polite"></div>
+
+        <button class="login-button" id="login-submit" type="submit">登录</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

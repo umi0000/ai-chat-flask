@@ -43,6 +43,8 @@ def create_app():
     app.register_blueprint(routes_bp)
     from .admin import bp as admin_bp
     app.register_blueprint(admin_bp)
+    from .pages import bp as pages_bp
+    app.register_blueprint(pages_bp)
     from . import models
     CORS(app, supports_credentials=True) 
 
@@ -56,5 +58,4 @@ def create_app():
                 db.session.commit()
                 print("首次启动，添加了管理员用户admin，密码admin123，请及时修改密码！")
     return app
-
 
